@@ -1,0 +1,40 @@
+sign_in:
+  name: Sign In
+  description: "Sign into a site using SignInApp"
+  fields:
+    entity_id:
+      required: false
+      selector:
+        entity:
+          domain: sensor
+          integration: signinapp
+    entry_id:
+      required: false
+      example: "abcd1234"
+      selector:
+        text:
+    site_id:
+      required: false
+      example: "hq"
+      selector:
+        text:
+sign_out:
+  name: Sign Out
+  description: "Sign out from a site using SignInApp"
+  fields:
+    entity_id:
+      required: false
+      selector:
+        entity:
+          domain: sensor
+          integration: signinapp
+    entry_id:
+      required: false
+      example: "abcd1234"
+      selector:
+        text:
+    site_id:
+      required: false
+      example: "hq"
+      selector:
+        text:
