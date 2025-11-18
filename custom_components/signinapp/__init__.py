@@ -27,9 +27,9 @@ from .const import (
     DATA_COORDINATOR,
     DATA_ENTITY_MAP,
     DATA_LISTENER,
-    DEFAULT_BASE_URL,
     DOMAIN,
     PLATFORMS,
+    SIGNINAPP_API_BASE,
     SERVICE_SIGN_IN,
     SERVICE_SIGN_IN_AUTO,
     SERVICE_SIGN_OUT,
@@ -37,6 +37,14 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+
+class CannotConnect(HomeAssistantError):
+    pass
+
+
+class InvalidCompanionCode(HomeAssistantError):
+    pass
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
@@ -87,12 +95,16 @@ class SignInAppCoordinator(DataUpdateCoordinator[Dict[str, Any]]):
             return data
         except ConfigEntryAuthFailed:
             raise
+        except CannotConnect as err:
+            raise UpdateFailed("Unable to connect to Sign In App") from err
+        except HomeAssistantError as err:
+            raise UpdateFailed(f"Sign In App error: {err}") from err
         except ClientError as err:
             raise UpdateFailed(f"Sign In App request failed: {err}") from err
 
 
 class SignInAppClient:
-    def __init__(self, hass: HomeAssistant, token: Optional[str] = None, base_url: str = DEFAULT_BASE_URL) -> None:
+    def __init__(self, hass: HomeAssistant, token: Optional[str] = None, base_url: str = SIGNINAPP_API_BASE) -> None:
         self.hass = hass
         self.token = token
         self.base_url = base_url.rstrip("/")
@@ -107,10 +119,18 @@ class SignInAppClient:
 
     async def async_connect(self, code: str) -> Dict[str, Any]:
         url = f"{self.base_url}/connect"
-        async with self.session.post(url, json={"code": code}, timeout=20) as resp:
-            if resp.status != 200:
-                raise HomeAssistantError("Invalid companion code")
-            data = await resp.json()
+        try:
+            async with self.session.post(url, json={"code": code}, timeout=20) as resp:
+                if resp.status in {400, 401}:
+                    raise InvalidCompanionCode
+                if resp.status >= 500:
+                    raise CannotConnect
+                if resp.status >= 400:
+                    text = await resp.text()
+                    raise HomeAssistantError(f"API error {resp.status}: {text}")
+                data = await resp.json()
+        except ClientError as err:
+            raise CannotConnect from err
         token = self._extract_token(data)
         if not token:
             raise HomeAssistantError("Token not found in response")
@@ -150,7 +170,7 @@ class SignInAppClient:
 
     async def _request(self, method: str, path: str, json: Optional[dict] = None) -> Dict[str, Any]:
         if not self.token:
-            raise ConfigEntryAuthFailed("Missing token")
+            raise ConfigEntryAuthFailed("Missing Sign In App token")
         headers = {
             "Authorization": f"Bearer {self.token}",
             "Content-Type": "application/json",
@@ -159,15 +179,20 @@ class SignInAppClient:
             "x-app-version": "HomeAssistant integration/1.0.0",
         }
         url = f"{self.base_url}{path}"
-        async with self.session.request(method, url, headers=headers, json=json, timeout=20) as resp:
-            if resp.status == 401:
-                raise ConfigEntryAuthFailed("Token expired")
-            if resp.status >= 400:
-                text = await resp.text()
-                raise HomeAssistantError(f"API error {resp.status}: {text}")
-            if resp.content_type == "application/json":
-                return await resp.json()
-            return {}
+        try:
+            async with self.session.request(method, url, headers=headers, json=json, timeout=20) as resp:
+                if resp.status == 401:
+                    raise ConfigEntryAuthFailed("Sign In App token expired")
+                if resp.status >= 500:
+                    raise CannotConnect
+                if resp.status >= 400:
+                    text = await resp.text()
+                    raise HomeAssistantError(f"API error {resp.status}: {text}")
+                if resp.content_type == "application/json":
+                    return await resp.json()
+                return {}
+        except ClientError as err:
+            raise CannotConnect from err
 
     def _extract_token(self, data: Dict[str, Any]) -> Optional[str]:
         for key in ["token", "jwt", "accessToken", "access_token", "deviceToken"]:
@@ -185,7 +210,7 @@ def register_services(hass: HomeAssistant) -> None:
         entry = await resolve_entry_from_call(hass, call, entity_ids)
         stored = hass.data[DOMAIN].get(entry.entry_id)
         if not stored:
-            raise HomeAssistantError("Integration not ready")
+            raise HomeAssistantError("Sign In App integration is not ready yet")
         client: SignInAppClient = stored[DATA_CLIENT]
         coordinator: SignInAppCoordinator = stored[DATA_COORDINATOR]
         tracker_entity = entry.options.get(CONF_DEVICE_TRACKER, entry.data.get(CONF_DEVICE_TRACKER))
@@ -194,7 +219,7 @@ def register_services(hass: HomeAssistant) -> None:
         if site_id is None:
             site_id = select_site_id(hass, entry)
         if site_id is None:
-            raise HomeAssistantError("Unable to determine site")
+            raise HomeAssistantError("Unable to determine which Sign In App site to use")
         if action == SERVICE_SIGN_IN:
             await client.async_sign_in(site_id, location)
         else:
@@ -222,11 +247,11 @@ async def resolve_entry_from_call(hass: HomeAssistant, call: ServiceCall, entity
         entry = hass.config_entries.async_get_entry(entry_id)
         if entry:
             return entry
-        raise HomeAssistantError("Invalid entry_id")
+        raise HomeAssistantError("Unknown Sign In App entry_id")
     if not entity_ids and CONF_ENTITY_ID in call.data:
         entity_ids = {call.data[CONF_ENTITY_ID]}
     if not entity_ids:
-        raise HomeAssistantError("entity_id is required")
+        raise HomeAssistantError("Provide an entity_id for a Sign In App sensor or specify entry_id")
     entity_id = next(iter(entity_ids))
     entity_map: Dict[str, str] = hass.data[DOMAIN].setdefault(DATA_ENTITY_MAP, {})
     if entry_id := entity_map.get(entity_id):
@@ -237,7 +262,7 @@ async def resolve_entry_from_call(hass: HomeAssistant, call: ServiceCall, entity
     if entity_entry := registry.async_get(entity_id):
         if entry := hass.config_entries.async_get_entry(entity_entry.config_entry_id):
             return entry
-    raise HomeAssistantError("Config entry for entity not found")
+    raise HomeAssistantError("Could not find a Sign In App config entry for the provided entity_id")
 
 
 def get_location(hass: HomeAssistant, entity_id: Optional[str]) -> Dict[str, Any]:

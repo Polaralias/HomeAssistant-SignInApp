@@ -3,7 +3,7 @@ from datetime import timedelta
 DOMAIN = "signinapp"
 PLATFORMS = ["sensor"]
 
-DEFAULT_BASE_URL = "https://backend.signinapp.com/api/mobile"
+SIGNINAPP_API_BASE = "https://backend.signinapp.com/api/mobile"
 
 CONF_COMPANION_CODE = "companion_code"
 CONF_TOKEN = "token"

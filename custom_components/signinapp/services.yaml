@@ -1,33 +1,33 @@
 sign_in:
-  description: Sign in with Sign In App using the configured companion device.
+  description: Sign in to Sign In App using the GPS position of the configured device tracker.
   fields:
     entity_id:
-      description: Status sensor entity_id for the companion device.
-      example: sensor.signinapp_jane
+      description: Status sensor entity ID for the companion device to target.
+      example: sensor.signinapp_status
     entry_id:
-      description: Optional config entry id to target a device.
+      description: Optional Sign In App config entry ID to target a specific companion device.
       example: abc123
     site_id:
-      description: Override site id for this sign in.
+      description: Optional Sign In App site ID to override the configured mapping for this sign in.
       example: 123
 sign_out:
-  description: Sign out with Sign In App using the configured companion device.
+  description: Sign out from Sign In App using the GPS position of the configured device tracker.
   fields:
     entity_id:
-      description: Status sensor entity_id for the companion device.
-      example: sensor.signinapp_jane
+      description: Status sensor entity ID for the companion device to target.
+      example: sensor.signinapp_status
     entry_id:
-      description: Optional config entry id to target a device.
+      description: Optional Sign In App config entry ID to target a specific companion device.
       example: abc123
     site_id:
-      description: Override site id for this sign out.
+      description: Optional Sign In App site ID to override the configured mapping for this sign out.
       example: 123
 sign_in_auto:
-  description: Automatically sign in based on device zone and configured sites.
+  description: Automatically choose the site based on the current zone and sign in.
   fields:
     entity_id:
-      description: Status sensor entity_id for the companion device.
-      example: sensor.signinapp_jane
+      description: Status sensor entity ID for the companion device to target.
+      example: sensor.signinapp_status
     entry_id:
-      description: Optional config entry id to target a device.
+      description: Optional Sign In App config entry ID to target a specific companion device.
       example: abc123
