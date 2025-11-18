@@ -1,0 +1,64 @@
+{
+  "title": "Sign In App",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Sign In App setup",
+        "description": "Connect Home Assistant as a Sign In App companion device using a companion code.",
+        "data": {
+          "companion_code": "Companion code"
+        }
+      },
+      "select_site_and_tracker": {
+        "title": "Sites and location",
+        "description": "Choose which Sign In App sites represent your office and remote working locations, and select the device tracker to use for GPS.",
+        "data": {
+          "office_site_id": "Office site",
+          "remote_site_id": "Remote site",
+          "device_tracker": "Device tracker"
+        }
+      },
+      "reauth_confirm": {
+        "title": "Reauthorise Sign In App",
+        "description": "Your Sign In App token has expired or is no longer valid. Enter a new companion code to reconnect.",
+        "data": {
+          "companion_code": "Companion code"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect to Sign In App. Check your network connection and try again.",
+      "invalid_code": "The companion code is invalid or has already been used.",
+      "no_sites_found": "No suitable sites were found in your Sign In App account.",
+      "unknown": "Unexpected error. Please try again."
+    },
+    "abort": {
+      "already_configured": "This Sign In App companion device is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Sign In App options",
+        "description": "Update the mapped sites or the device tracker used for GPS.",
+        "data": {
+          "office_site_id": "Office site",
+          "remote_site_id": "Remote site",
+          "device_tracker": "Device tracker"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Sign In App status",
+        "state": {
+          "signed_in": "Signed in",
+          "signed_out": "Signed out",
+          "unknown": "Unknown"
+        }
+      }
+    }
+  }
+}

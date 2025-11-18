@@ -30,12 +30,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry, async_add_e
 
 class SignInAppStatusSensor(CoordinatorEntity, SensorEntity):
     _attr_icon = "mdi:badge-account"
+    _attr_has_entity_name = True
+    _attr_translation_key = "status"
 
     def __init__(self, coordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._entry = entry
-        name = entry.data.get(CONF_VISITOR_NAME) or entry.title
-        self._attr_name = f"Sign In App {name}" if not name.lower().startswith("sign in app") else name
         self._attr_unique_id = f"{entry.entry_id}_status"
 
     @property

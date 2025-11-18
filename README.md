@@ -4,7 +4,7 @@ Home Assistant custom integration for Sign In App companion devices. Each config
 
 ## Installation via HACS
 1. Install [HACS](https://hacs.xyz/) in your Home Assistant instance.
-2. In HACS, add this repository as a custom integration repository using the repository URL for this project.
+2. In HACS, add this repository as a custom integration repository using `https://github.com/youruser/hass-signinapp` as the repository URL.
 3. Install **Sign In App** from HACS, then restart Home Assistant.
 4. Go to **Settings → Devices & Services**, add **Sign In App**, enter your companion code, choose office/remote sites and a `device_tracker`, and finish the flow. Repeat to add more devices.
 
