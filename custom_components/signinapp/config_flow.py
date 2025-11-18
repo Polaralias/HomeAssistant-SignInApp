@@ -67,8 +67,8 @@ class SignInAppConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "invalid_code"
             except CannotConnect:
                 errors["base"] = "cannot_connect"
-            except Exception as err:  # noqa: BLE001
-                _LOGGER.debug("Pairing failed: %s", err)
+            except Exception:  # noqa: BLE001
+                _LOGGER.exception("Unexpected error during pairing")
                 errors["base"] = "unknown"
             else:
                 if visitor := self._config.get("returningVisitor"):
@@ -127,8 +127,8 @@ class SignInAppConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "invalid_code"
             except CannotConnect:
                 errors["base"] = "cannot_connect"
-            except Exception as err:  # noqa: BLE001
-                _LOGGER.debug("Reauth failed: %s", err)
+            except Exception:  # noqa: BLE001
+                _LOGGER.exception("Unexpected error during reauthentication")
                 errors["base"] = "unknown"
             else:
                 office_site = self._reauth_entry.data.get(CONF_OFFICE_SITE)
