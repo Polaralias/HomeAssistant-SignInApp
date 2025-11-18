@@ -1,15 +1,11 @@
 {
   "domain": "signinapp",
-  "name": "SignInApp",
-  "version": "0.1.0",
-  "documentation": "https://example.com/signinapp/docs",
-  "issue_tracker": "https://example.com/signinapp/issues",
+  "name": "Sign In App",
+  "version": "1.0.0",
+  "documentation": "https://github.com/youruser/hass-signinapp",
+  "issue_tracker": "https://github.com/youruser/hass-signinapp/issues",
   "requirements": [],
   "dependencies": [],
-  "codeowners": ["@openai"],
-  "config_flow": true,
-  "iot_class": "cloud_polling",
-  "integration_type": "hub",
-  "loggers": ["custom_components.signinapp"],
-  "hacs": "integration"
+  "codeowners": ["@youruser"],
+  "config_flow": true
 }

@@ -1,7 +1,7 @@
 {
-  "name": "HomeAssistant-SignInApp",
-  "domain": "signinapp",
+  "name": "Sign In App",
   "content_in_root": false,
+  "domain": "signinapp",
   "country": [],
   "render_readme": true
 }

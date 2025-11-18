@@ -1,40 +1,33 @@
 sign_in:
-  name: Sign In
-  description: "Sign into a site using SignInApp"
+  description: Sign in with Sign In App using the configured companion device.
   fields:
     entity_id:
-      required: false
-      selector:
-        entity:
-          domain: sensor
-          integration: signinapp
+      description: Status sensor entity_id for the companion device.
+      example: sensor.signinapp_jane
     entry_id:
-      required: false
-      example: "abcd1234"
-      selector:
-        text:
+      description: Optional config entry id to target a device.
+      example: abc123
     site_id:
-      required: false
-      example: "hq"
-      selector:
-        text:
+      description: Override site id for this sign in.
+      example: 123
 sign_out:
-  name: Sign Out
-  description: "Sign out from a site using SignInApp"
+  description: Sign out with Sign In App using the configured companion device.
   fields:
     entity_id:
-      required: false
-      selector:
-        entity:
-          domain: sensor
-          integration: signinapp
+      description: Status sensor entity_id for the companion device.
+      example: sensor.signinapp_jane
     entry_id:
-      required: false
-      example: "abcd1234"
-      selector:
-        text:
+      description: Optional config entry id to target a device.
+      example: abc123
     site_id:
-      required: false
-      example: "hq"
-      selector:
-        text:
+      description: Override site id for this sign out.
+      example: 123
+sign_in_auto:
+  description: Automatically sign in based on device zone and configured sites.
+  fields:
+    entity_id:
+      description: Status sensor entity_id for the companion device.
+      example: sensor.signinapp_jane
+    entry_id:
+      description: Optional config entry id to target a device.
+      example: abc123
