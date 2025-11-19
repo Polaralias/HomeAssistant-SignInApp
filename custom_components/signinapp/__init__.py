@@ -131,6 +131,8 @@ class SignInAppClient:
                 data = await resp.json(content_type=None)
         except ClientError as err:
             raise CannotConnect from err
+        except HomeAssistantError:
+            raise
         except Exception as err:  # noqa: BLE001
             raise HomeAssistantError("Unexpected response from Sign In App") from err
         if data.get("success") is False:
