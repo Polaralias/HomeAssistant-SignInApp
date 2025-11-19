@@ -121,19 +121,23 @@ class SignInAppClient:
         url = f"{self.base_url}/connect"
         try:
             async with self.session.post(url, json={"code": code}, timeout=20) as resp:
-                if resp.status in {400, 401}:
+                if resp.status in {400, 401, 404}:
                     raise InvalidCompanionCode
                 if resp.status >= 500:
                     raise CannotConnect
                 if resp.status >= 400:
                     text = await resp.text()
                     raise HomeAssistantError(f"API error {resp.status}: {text}")
-                data = await resp.json()
+                data = await resp.json(content_type=None)
         except ClientError as err:
             raise CannotConnect from err
+        except Exception as err:  # noqa: BLE001
+            raise HomeAssistantError("Unexpected response from Sign In App") from err
+        if data.get("success") is False:
+            raise InvalidCompanionCode
         token = self._extract_token(data)
         if not token:
-            raise HomeAssistantError("Token not found in response")
+            raise InvalidCompanionCode
         self.token = token
         return data
 
