@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Optional
 
-from aiohttp import ClientError
+from aiohttp import ClientError, ContentTypeError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ENTITY_ID
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -45,6 +45,10 @@ class CannotConnect(HomeAssistantError):
 
 class InvalidCompanionCode(HomeAssistantError):
     pass
+
+
+class InvalidAPIResponse(CannotConnect):
+    """Raised when the Sign In App API returns an unexpected response."""
 
 
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
@@ -121,10 +125,14 @@ class SignInAppClient:
         url = f"{self.base_url}/connect"
         try:
             async with self.session.post(url, json={"code": code}, timeout=20) as resp:
-                if resp.status in {400, 401, 404}:
+                if resp.status in {400, 401}:
                     text = await resp.text()
                     _LOGGER.error("Sign In App connect failed (%s): %s", resp.status, text)
                     raise InvalidCompanionCode
+                if resp.status == 404:
+                    text = await resp.text()
+                    _LOGGER.error("Sign In App connect endpoint not found (%s): %s", resp.status, text)
+                    raise CannotConnect
                 if resp.status >= 500:
                     text = await resp.text()
                     _LOGGER.error("Sign In App connect server error (%s): %s", resp.status, text)
@@ -133,7 +141,25 @@ class SignInAppClient:
                     text = await resp.text()
                     _LOGGER.error("Sign In App connect API error (%s): %s", resp.status, text)
                     raise HomeAssistantError(f"API error {resp.status}: {text}")
-                data = await resp.json(content_type=None)
+                if resp.content_type != "application/json":
+                    text = await resp.text()
+                    _LOGGER.error(
+                        "Sign In App connect returned non-JSON response (%s): %s",
+                        resp.content_type,
+                        text,
+                    )
+                    raise InvalidAPIResponse
+                try:
+                    data = await resp.json(content_type=None)
+                except (ContentTypeError, ValueError) as err:
+                    text = await resp.text()
+                    _LOGGER.error("Sign In App connect JSON parse error: %s", text)
+                    raise InvalidAPIResponse from err
+                if not isinstance(data, dict):
+                    _LOGGER.error("Sign In App connect returned invalid payload: %s", data)
+                    raise InvalidAPIResponse
+        except InvalidAPIResponse:
+            raise
         except ClientError as err:
             _LOGGER.error("Sign In App connect request failed: %s", err)
             raise CannotConnect from err

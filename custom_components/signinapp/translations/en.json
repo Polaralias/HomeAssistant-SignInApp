@@ -27,7 +27,7 @@
       }
     },
     "error": {
-      "cannot_connect": "Could not connect to Sign In App. Check your network connection and try again.",
+      "cannot_connect": "Could not reach the Sign In App API or it returned an unexpected response. Check your connection and server URL.",
       "invalid_code": "The companion code is invalid or has already been used.",
       "no_sites_found": "No suitable sites were found in your Sign In App account.",
       "unknown": "Unexpected error. Please try again."
