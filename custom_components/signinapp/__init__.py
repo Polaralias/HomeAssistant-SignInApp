@@ -122,16 +122,23 @@ class SignInAppClient:
         try:
             async with self.session.post(url, json={"code": code}, timeout=20) as resp:
                 if resp.status in {400, 401, 404}:
+                    text = await resp.text()
+                    _LOGGER.error("Sign In App connect failed (%s): %s", resp.status, text)
                     raise InvalidCompanionCode
                 if resp.status >= 500:
+                    text = await resp.text()
+                    _LOGGER.error("Sign In App connect server error (%s): %s", resp.status, text)
                     raise CannotConnect
                 if resp.status >= 400:
                     text = await resp.text()
+                    _LOGGER.error("Sign In App connect API error (%s): %s", resp.status, text)
                     raise HomeAssistantError(f"API error {resp.status}: {text}")
                 data = await resp.json(content_type=None)
         except ClientError as err:
+            _LOGGER.error("Sign In App connect request failed: %s", err)
             raise CannotConnect from err
         except Exception as err:  # noqa: BLE001
+            _LOGGER.exception("Unexpected response from Sign In App connect: %s", err)
             raise HomeAssistantError("Unexpected response from Sign In App") from err
         if data.get("success") is False:
             raise InvalidCompanionCode
@@ -186,16 +193,22 @@ class SignInAppClient:
         try:
             async with self.session.request(method, url, headers=headers, json=json, timeout=20) as resp:
                 if resp.status == 401:
+                    text = await resp.text()
+                    _LOGGER.error("Sign In App request unauthorized (%s %s): %s", method, path, text)
                     raise ConfigEntryAuthFailed("Sign In App token expired")
                 if resp.status >= 500:
+                    text = await resp.text()
+                    _LOGGER.error("Sign In App server error (%s %s): %s", method, path, text)
                     raise CannotConnect
                 if resp.status >= 400:
                     text = await resp.text()
+                    _LOGGER.error("Sign In App API error (%s %s): %s", method, path, text)
                     raise HomeAssistantError(f"API error {resp.status}: {text}")
                 if resp.content_type == "application/json":
                     return await resp.json()
                 return {}
         except ClientError as err:
+            _LOGGER.error("Sign In App request failed (%s %s): %s", method, path, err)
             raise CannotConnect from err
 
     def _extract_token(self, data: Dict[str, Any]) -> Optional[str]:
