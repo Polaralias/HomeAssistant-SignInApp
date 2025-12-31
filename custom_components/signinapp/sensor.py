@@ -5,6 +5,7 @@ import logging
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -48,30 +49,37 @@ async def async_setup_entry(
 
     await coordinator.async_config_entry_first_refresh()
 
-    async_add_entities([SignInAppSensor(coordinator, entry.entry_id)], True)
+    async_add_entities([SignInAppSensor(coordinator, entry)], True)
 
 class SignInAppSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Sign In App Sensor."""
 
-    def __init__(self, coordinator, entry_id):
+    _attr_translation_key = "status"
+    _attr_has_entity_name = True
+    _attr_icon = "mdi:account-badge"
+
+    def __init__(self, coordinator, entry):
         """Initialize the sensor."""
         super().__init__(coordinator)
-        self._attr_name = "Sign In App Status"
-        self._attr_unique_id = f"{entry_id}_status"
-        self._attr_icon = "mdi:account-badge"
+        self.entry = entry
+
+        # Use entry.unique_id if available (Visitor ID), else fallback to entry_id
+        unique_id_base = entry.unique_id if entry.unique_id else entry.entry_id
+        self._attr_unique_id = f"{unique_id_base}_status"
+        self._attr_name = None
 
     @property
     def native_value(self):
         """Return the state of the sensor."""
-        # The PS script shows config-v2 returns `returningVisitor` object with `status`
-        # "status": "signed_out"
         data = self.coordinator.data
         if not data:
             return None
 
         returning_visitor = data.get("returningVisitor")
         if returning_visitor:
-            return returning_visitor.get("status")
+            status = returning_visitor.get("status")
+            if status:
+                return status.lower()
         return "unknown"
 
     @property
@@ -92,3 +100,20 @@ class SignInAppSensor(CoordinatorEntity, SensorEntity):
             "name": returning_visitor.get("name"),
             "group_id": returning_visitor.get("groupId"),
         }
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Return device information."""
+        data = self.coordinator.data
+        name = "Sign In App"
+        if data and "returningVisitor" in data:
+             name = data["returningVisitor"].get("name", name)
+
+        # Use entry.unique_id if available, else fallback to entry_id
+        identifier_id = self.entry.unique_id if self.entry.unique_id else self.entry.entry_id
+
+        return DeviceInfo(
+            identifiers={(DOMAIN, identifier_id)},
+            name=name,
+            manufacturer="Sign In App",
+        )
