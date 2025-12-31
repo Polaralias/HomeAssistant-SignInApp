@@ -1,0 +1,46 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Connect to Sign In App",
+        "description": "Please enter your Companion Code from the Sign In App portal or invite email.",
+        "data": {
+          "companion_code": "Companion Code"
+        }
+      },
+      "sites": {
+        "title": "Configure Sites",
+        "description": "Enter the Site IDs for Remote and Office locations. Select the person for Office location.\n\nAvailable Sites:\n{sites_list}",
+        "data": {
+          "remote_site_id": "Remote Site ID",
+          "office_site_id": "Office Site ID",
+          "device_tracker": "Office Person",
+          "office_distance": "Office Distance (Radius)"
+        }
+      },
+      "reconfigure": {
+        "title": "Reconfigure Sign In App",
+        "description": "Update your site configuration. If you need to update your Companion Code, please remove and re-add the integration."
+      }
+    },
+    "error": {
+      "connect_error": "Failed to connect with the provided code. Please check and try again."
+    },
+    "abort": {
+      "already_configured": "Device is already configured",
+      "reconfigure_successful": "Reconfiguration successful"
+    }
+  },
+  "entity": {
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "signed_in": "Signed In",
+          "signed_out": "Signed Out",
+          "unknown": "Unknown"
+        }
+      }
+    }
+  }
+}
