@@ -13,7 +13,7 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 
-from .const import DOMAIN
+from .const import DOMAIN, CONF_REMOTE_SITE_ID, CONF_OFFICE_SITE_ID
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ class SignInAppSensor(CoordinatorEntity, SensorEntity):
         if data and "returningVisitor" in data:
              name = data["returningVisitor"].get("name", name)
 
-        self._attr_name = f"Signinapp {name}"
+        self._attr_name = f"SignInApp {name}"
 
     @property
     def native_value(self):
@@ -86,7 +86,23 @@ class SignInAppSensor(CoordinatorEntity, SensorEntity):
         if returning_visitor:
             status = returning_visitor.get("status")
             if status:
-                return status.lower()
+                status = status.lower()
+                site_id = str(returning_visitor.get("siteId")) if returning_visitor.get("siteId") else None
+                remote_site_id = str(self.entry.data.get(CONF_REMOTE_SITE_ID)) if self.entry.data.get(CONF_REMOTE_SITE_ID) else None
+                office_site_id = str(self.entry.data.get(CONF_OFFICE_SITE_ID)) if self.entry.data.get(CONF_OFFICE_SITE_ID) else None
+
+                if status == "signed_in":
+                    if site_id and site_id == remote_site_id:
+                        return "signed_in_remote"
+                    if site_id and site_id == office_site_id:
+                        return "signed_in_office"
+                elif status == "signed_out":
+                    if site_id and site_id == remote_site_id:
+                        return "signed_out_remote"
+                    if site_id and site_id == office_site_id:
+                        return "signed_out_office"
+
+                return status
         return "unknown"
 
     @property

@@ -12,10 +12,10 @@
         "title": "Configure Sites",
         "description": "Enter the Site IDs for Remote and Office locations. Select the person for Office location.\n\nAvailable Sites:\n{sites_list}",
         "data": {
-          "remote_site_id": "Remote Site ID",
-          "office_site_id": "Office Site ID",
-          "device_tracker": "Office Person",
-          "office_distance": "Office Distance (Radius)"
+          "remote_site_id": "Remote site ID",
+          "office_site_id": "Office site ID",
+          "device_tracker": "Person tracker",
+          "office_distance": "Office distance"
         }
       },
       "reconfigure": {
@@ -38,6 +38,10 @@
         "state": {
           "signed_in": "Signed In",
           "signed_out": "Signed Out",
+          "signed_in_remote": "Signed In - Remote",
+          "signed_in_office": "Signed In - Office",
+          "signed_out_remote": "Signed Out - Remote",
+          "signed_out_office": "Signed Out - Office",
           "unknown": "Unknown"
         }
       }

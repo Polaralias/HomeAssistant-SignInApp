@@ -1,6 +1,6 @@
 {
   "domain": "signinapp",
-  "name": "Sign In App",
+  "name": "SignInApp",
   "codeowners": [],
   "config_flow": true,
   "dependencies": [],
