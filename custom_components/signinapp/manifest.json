@@ -1,0 +1,12 @@
+{
+  "domain": "signinapp",
+  "name": "Sign In App",
+  "codeowners": [],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/jules/signinapp",
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/jules/signinapp/issues",
+  "requirements": [],
+  "version": "1.0.0"
+}

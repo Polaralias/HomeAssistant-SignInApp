@@ -1,0 +1,27 @@
+sign_in:
+  name: Sign In
+  description: Sign in to a specific site type.
+  fields:
+    site_type:
+      name: Site Type
+      description: The type of site to sign in to (office or remote).
+      required: true
+      selector:
+        select:
+          options:
+            - office
+            - remote
+
+sign_out:
+  name: Sign Out
+  description: Sign out from a specific site type.
+  fields:
+    site_type:
+      name: Site Type
+      description: The type of site to sign out from (office or remote).
+      required: true
+      selector:
+        select:
+          options:
+            - office
+            - remote
