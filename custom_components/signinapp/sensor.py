@@ -55,7 +55,7 @@ class SignInAppSensor(CoordinatorEntity, SensorEntity):
     """Representation of a Sign In App Sensor."""
 
     _attr_translation_key = "status"
-    _attr_has_entity_name = True
+    _attr_has_entity_name = False
     _attr_icon = "mdi:account-badge"
 
     def __init__(self, coordinator, entry):
@@ -66,7 +66,14 @@ class SignInAppSensor(CoordinatorEntity, SensorEntity):
         # Use entry.unique_id if available (Visitor ID), else fallback to entry_id
         unique_id_base = entry.unique_id if entry.unique_id else entry.entry_id
         self._attr_unique_id = f"{unique_id_base}_status"
-        self._attr_name = None
+
+        # Get name from coordinator data
+        data = coordinator.data
+        name = "Sign In App"
+        if data and "returningVisitor" in data:
+             name = data["returningVisitor"].get("name", name)
+
+        self._attr_name = f"Signinapp {name}"
 
     @property
     def native_value(self):
